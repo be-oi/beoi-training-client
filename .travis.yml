@@ -1,27 +1,52 @@
 language: node_js
 
+# step order:
+# OPTIONAL Install: apt addons
+# OPTIONAL Install: cache components
+# before_install
+# install
+# before_script
+# script
+# OPTIONAL before_cache (for cleaning up cache)
+# after_success or after_failure
+# OPTIONAL before_deploy
+# OPTIONAL deploy
+# OPTIONAL after_deploy
+# after_script
+
 node_js:
   - 7
-  - 6
-  - 5
 
-script:
-  - node ./internals/scripts/generate-templates-for-linting
-  - npm run test
-  - npm run build
+notifications:
+  email:
+    on_failure: change
+
+cache:
+  yarn: true
+  directories:
+    - node_modules
 
 before_install:
   - export CHROME_BIN=chromium-browser
   - export DISPLAY=:99.0
   - sh -e /etc/init.d/xvfb start
 
-notifications:
-  email:
-    on_failure: change
+script:
+  - node ./internals/scripts/generate-templates-for-linting
+  - npm run test
 
 after_success: 'npm run coveralls'
 
-cache:
-  yarn: true
-  directories:
-    - node_modules
+before_deploy:
+  - npm run build
+
+deploy:
+  provider: s3
+  access_key_id: $AWS_ACCESS_KEY
+  secret_access_key: $AWS_SECRET_KEY
+  bucket: "beoi-training-platform"
+  skip_cleanup: true
+  acl: public_read
+  region: eu-central-1
+  local_dir: build
+  cache_control: "max-age=10"
