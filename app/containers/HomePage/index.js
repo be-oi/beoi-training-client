@@ -23,6 +23,8 @@ import { loadRepos } from '../App/actions';
 import { changeUsername } from './actions';
 import { makeSelectUsername } from './selectors';
 
+import { firebaseConnect, isLoaded, isEmpty, dataToJS } from 'react-redux-firebase'
+
 export class HomePage extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
   /**
    * when initial state username is not null, submit the form to load repos
@@ -98,6 +100,8 @@ HomePage.propTypes = {
   onSubmitForm: React.PropTypes.func,
   username: React.PropTypes.string,
   onChangeUsername: React.PropTypes.func,
+
+  firebase: PropTypes.object,
 };
 
 export function mapDispatchToProps(dispatch) {
@@ -115,7 +119,33 @@ const mapStateToProps = createStructuredSelector({
   username: makeSelectUsername(),
   loading: makeSelectLoading(),
   error: makeSelectError(),
+  tasks: ({firebase}) => ({
+    tasks: dataToJS(firebase, '/tasks'),
+  })
 });
+/*
+const wrappedTodos = firebaseConnect([
+  '/tasks'
+])(HomePage)
+export default connect(
+  ({firebase}) => ({
+    todos: dataToJS(firebase, '/todos'),
+  })
+)(wrappedTodos)
+*/
+
+const homePageConnected = connect(mapStateToProps, mapDispatchToProps)(HomePage);
+
+const wrappedHomePage = firebaseConnect([
+  '/tasks'
+])(homePageConnected)
+
+export default connect(
+  ({firebase}) => ({
+    todos: dataToJS(firebase, '/tasks'),
+  })
+)(wrappedHomePage)
+
 
 // Wrap the component to inject dispatch and state into it
-export default connect(mapStateToProps, mapDispatchToProps)(HomePage);
+// export default connect(mapStateToProps, mapDispatchToProps)(HomePage);

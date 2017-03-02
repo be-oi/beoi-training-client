@@ -3,6 +3,7 @@
  */
 
 import { createStore, applyMiddleware, compose } from 'redux';
+import { reactReduxFirebase, firebaseStateReducer } from 'react-redux-firebase'
 import { fromJS } from 'immutable';
 import { routerMiddleware } from 'react-router-redux';
 import createSagaMiddleware from 'redux-saga';
@@ -19,8 +20,17 @@ export default function configureStore(initialState = {}, history) {
     routerMiddleware(history),
   ];
 
+  // Firebase config
+  const firebaseConfig = {
+    apiKey: 'AIzaSyDBwL0F_ekdxfH5s5Wn022WB-Yh4KYRsUk',
+    authDomain: 'beoi-training-platform.firebaseapp.com',
+    databaseURL: 'https://beoi-training-platform.firebaseio.com',
+    storageBucket: 'beoi-training-platform.appspot.com'
+  };  // messagingSenderId: "274142917816"
+
   const enhancers = [
     applyMiddleware(...middlewares),
+    reactReduxFirebase(firebaseConfig, { userProfile: 'users' })
   ];
 
   // If Redux DevTools Extension is installed use it, otherwise use Redux compose
