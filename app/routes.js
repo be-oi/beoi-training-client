@@ -24,12 +24,14 @@ export default function createRoutes(store) {
         const importModules = Promise.all([
           import('containers/HomePage'),
           import('containers/TaskIndex/reducer'),
+          import('containers/TaskIndex/sagas'),
         ]);
 
         const renderRoute = loadModule(cb);
 
-        importModules.then(([component, reducer]) => {
+        importModules.then(([component, reducer, sagas]) => {
           injectReducer('taskIndex', reducer.default);
+          injectSagas(sagas.default);
           renderRoute(component);
         });
 
